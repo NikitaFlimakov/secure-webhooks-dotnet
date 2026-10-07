@@ -1,0 +1,12 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\SecureWebhooks.Signing\SecureWebhooks.Signing.csproj" />
+    <ProjectReference Include="..\..\src\SecureWebhooks.Outbound\SecureWebhooks.Outbound.csproj" />
+  </ItemGroup>
+
+</Project>
