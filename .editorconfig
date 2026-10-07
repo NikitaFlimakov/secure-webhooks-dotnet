@@ -68,3 +68,4 @@ dotnet_diagnostic.CA5394.severity = none
 [samples/**.cs]
 # README snippets favour readability over LoggerMessage source generation.
 dotnet_diagnostic.CA1848.severity = none
+dotnet_diagnostic.CA1873.severity = none

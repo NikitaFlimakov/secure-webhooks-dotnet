@@ -93,7 +93,7 @@ app.MapPost("/webhooks", async (HttpRequest request, IMemoryCache seen, ILogger<
         return Results.NoContent();
     }
 
-    seen.Set(id, true, TimeSpan.FromDays(4)); // longer than the sender's retry horizon (~3 days)
+    seen.Set(id, true, TimeSpan.FromDays(4)); // outlives the sender's retry horizon (~3.2 days plus jitter)
     logger.LogInformation("Processing webhook {Id}", id);
     return Results.NoContent();
 });
