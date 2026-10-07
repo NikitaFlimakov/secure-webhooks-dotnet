@@ -66,15 +66,27 @@ public sealed class WebhookSenderIntegrationTests : IAsyncLifetime
     [Fact]
     public async Task Oversized_response_body_is_not_read_beyond_the_limit()
     {
-        var harness = Allowed();
+        long bytesRead = 0;
+        var harness = new SenderHarness(TimeProvider.System, o =>
+        {
+            var handler = new SsrfSafeConnectCallback(new IpAddressPolicy(o.AllowedNetworks), SystemDnsResolver.Instance, null).CreateHandler(o);
+            var connect = handler.ConnectCallback!;
+            handler.ConnectCallback = async (context, ct) => new CountingStream(await connect(context, ct), n => Interlocked.Add(ref bytesRead, n));
+            return handler;
+        }, o =>
+        {
+            o.AllowHttp = true;
+            o.AllowedNetworks.Add(System.Net.IPNetwork.Parse("127.0.0.0/8"));
+        });
 
         var result = await harness.Sender.SendAsync(harness.Endpoint(_server.Url("/big")), SenderHarness.Message(), _ct);
+        await Task.Delay(500, _ct); // let any connection drain finish
 
         Assert.True(result.Outcome == AttemptOutcome.Success, $"{result.Outcome} {result.StatusCode} {result.Error}");
         Assert.Equal(harness.Options.MaxResponseBodyBytes, result.ResponseBodyPreview!.Length);
-        await Task.Delay(500, _ct); // let the server observe the closed connection
-        // Socket buffers on both sides plus SocketsHttpHandler's bounded drain (1 MB) can absorb a few MB, never 64 MB.
-        long written = Interlocked.Read(ref _server.BigBodyBytesWritten);
-        Assert.True(written < 32L * 1024 * 1024, $"the server streamed {written} bytes; the client should have stopped reading long before 64 MB");
+        // The server offers 64 MB. The client reads the 4 KB preview, and SocketsHttpHandler drains at most
+        // MaxResponseDrainSize (1 MB by default) before closing the connection.
+        long read = Interlocked.Read(ref bytesRead);
+        Assert.True(read < 2L * 1024 * 1024, $"the client read {read} bytes from the socket");
     }
 }

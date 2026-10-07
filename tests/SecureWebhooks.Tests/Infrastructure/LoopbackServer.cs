@@ -23,8 +23,6 @@ internal sealed class LoopbackServer : IAsyncDisposable
     /// <summary>Requests received, keyed by path.</summary>
     public ConcurrentQueue<RecordedRequest> Requests { get; } = new();
 
-    public long BigBodyBytesWritten;
-
     public Uri Url(string path = "/") => new($"http://127.0.0.1:{Port}{path}");
 
     public static async Task<LoopbackServer> StartAsync(Func<HttpContext, Task>? handler = null)
@@ -59,14 +57,12 @@ internal sealed class LoopbackServer : IAsyncDisposable
                     break;
                 case "/big":
                     // Streams up to 64 MB; a well-behaved client stops reading long before that.
-                    // Kestrel turns writes after a client disconnect into no-ops, so stop counting once aborted.
                     var chunk = new byte[64 * 1024];
                     try
                     {
-                        for (int i = 0; i < 1024 && !context.RequestAborted.IsCancellationRequested; i++)
+                        for (int i = 0; i < 1024; i++)
                         {
                             await context.Response.Body.WriteAsync(chunk, context.RequestAborted);
-                            Interlocked.Add(ref server.BigBodyBytesWritten, chunk.Length);
                         }
                     }
                     catch (Exception ex) when (ex is OperationCanceledException or IOException)
