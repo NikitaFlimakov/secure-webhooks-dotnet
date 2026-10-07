@@ -28,4 +28,10 @@ public sealed class WebhookSendingOptions
 
     /// <summary>Maximum total size of response headers, in kilobytes.</summary>
     public int MaxResponseHeadersLength { get; set; } = 16;
+
+    /// <summary>Timeout for a single attempt, from connect until the response body preview has been read.</summary>
+    public TimeSpan AttemptTimeout { get; set; } = TimeSpan.FromSeconds(15);
+
+    /// <summary>At most this many bytes of the response body are read (for diagnostics); the rest is discarded.</summary>
+    public int MaxResponseBodyBytes { get; set; } = 4096;
 }
