@@ -48,10 +48,14 @@ public sealed class WebhookUrlValidator(IpAddressPolicy policy, WebhookSendingOp
             return UrlValidationResult.Invalid("The port is not allowed.");
         }
 
-        bool blocked = IPAddress.TryParse(host, out var address)
-            ? !policy.IsAllowed(address)
-            : host.Equals("localhost", StringComparison.OrdinalIgnoreCase) || host.EndsWith(".localhost", StringComparison.OrdinalIgnoreCase);
+        // "localhost" (RFC 6761) is judged as the loopback address it always resolves to.
+        if (host.Equals("localhost", StringComparison.OrdinalIgnoreCase) || host.EndsWith(".localhost", StringComparison.OrdinalIgnoreCase))
+        {
+            host = "127.0.0.1";
+        }
 
-        return blocked ? UrlValidationResult.Invalid("The destination address is not allowed.") : UrlValidationResult.Valid;
+        return IPAddress.TryParse(host, out var address) && !policy.IsAllowed(address)
+            ? UrlValidationResult.Invalid("The destination address is not allowed.")
+            : UrlValidationResult.Valid;
     }
 }

@@ -57,6 +57,16 @@ public sealed class WebhookUrlValidatorTests
     public void Http_is_accepted_only_when_enabled() =>
         Assert.True(Create(o => o.AllowHttp = true).Validate(new Uri("http://example.com/")).IsValid);
 
+    [Theory]
+    [InlineData("http://localhost:5080/webhooks")]
+    [InlineData("http://127.0.0.1:5080/webhooks")]
+    public void Loopback_names_pass_when_loopback_is_explicitly_allowed(string url) =>
+        Assert.True(Create(o =>
+        {
+            o.AllowHttp = true;
+            o.AllowedNetworks.Add(System.Net.IPNetwork.Parse("127.0.0.0/8"));
+        }).Validate(new Uri(url)).IsValid);
+
     [Fact]
     public void Allowed_ports_restrict_destinations_when_configured()
     {
