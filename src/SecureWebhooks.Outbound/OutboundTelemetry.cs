@@ -15,6 +15,7 @@ internal static class OutboundTelemetry
     public static readonly Counter<long> Attempts = Meter.CreateCounter<long>("securewebhooks.attempts", description: "Delivery attempts.");
     public static readonly Counter<long> Succeeded = Meter.CreateCounter<long>("securewebhooks.succeeded", description: "Successful delivery attempts.");
     public static readonly Counter<long> Failed = Meter.CreateCounter<long>("securewebhooks.failed", description: "Failed delivery attempts.");
+    public static readonly Counter<long> CircuitOpened = Meter.CreateCounter<long>("securewebhooks.circuit_opened", description: "Times an endpoint's circuit breaker opened.");
     public static readonly Histogram<double> AttemptDuration = Meter.CreateHistogram<double>("securewebhooks.attempt.duration", "s", "Duration of delivery attempts.");
 
     public static void RecordAttempt(AttemptResult result)
