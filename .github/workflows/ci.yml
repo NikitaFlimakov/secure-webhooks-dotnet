@@ -40,7 +40,9 @@ jobs:
         run: dotnet test -c Release --no-build --logger GitHubActions --collect:"XPlat Code Coverage" --results-directory ./coverage
 
       - name: Pack
-        run: dotnet pack -c Release --no-build -o ./artifacts
+        run: |
+          dotnet pack src/SecureWebhooks.Signing -c Release --no-build -o ./artifacts
+          dotnet pack src/SecureWebhooks.Outbound -c Release --no-build -o ./artifacts
 
       - uses: actions/upload-artifact@v7
         with:
