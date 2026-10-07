@@ -1,0 +1,53 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+env:
+  DOTNET_NOLOGO: true
+  DOTNET_CLI_TELEMETRY_OPTOUT: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-dotnet@v6
+        with:
+          dotnet-version: |
+            8.0.x
+            10.0.x
+
+      - name: Restore
+        run: dotnet restore
+
+      - name: Format
+        run: dotnet format --verify-no-changes --no-restore
+
+      - name: Build
+        run: dotnet build -c Release -warnaserror --no-restore
+
+      - name: Test
+        run: dotnet test -c Release --no-build --collect:"XPlat Code Coverage" --results-directory ./coverage
+
+      - name: Pack
+        run: dotnet pack -c Release --no-build -o ./artifacts
+
+      - uses: actions/upload-artifact@v7
+        with:
+          name: nupkg
+          path: ./artifacts/*nupkg
+
+      - uses: actions/upload-artifact@v7
+        with:
+          name: coverage
+          path: ./coverage/**/coverage.cobertura.xml
