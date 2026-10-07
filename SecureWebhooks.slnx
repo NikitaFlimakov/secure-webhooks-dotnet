@@ -1,0 +1,12 @@
+<Solution>
+  <Folder Name="/benchmarks/">
+    <Project Path="benchmarks/SecureWebhooks.Benchmarks/SecureWebhooks.Benchmarks.csproj" />
+  </Folder>
+  <Folder Name="/src/">
+    <Project Path="src/SecureWebhooks.Outbound/SecureWebhooks.Outbound.csproj" />
+    <Project Path="src/SecureWebhooks.Signing/SecureWebhooks.Signing.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/SecureWebhooks.Tests/SecureWebhooks.Tests.csproj" />
+  </Folder>
+</Solution>

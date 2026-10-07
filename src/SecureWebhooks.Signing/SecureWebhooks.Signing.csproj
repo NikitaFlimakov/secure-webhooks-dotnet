@@ -1,0 +1,7 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <Description>Standard Webhooks compatible HMAC-SHA256 signing and verification for .NET. Zero dependencies; allocation-free verification.</Description>
+  </PropertyGroup>
+
+</Project>
