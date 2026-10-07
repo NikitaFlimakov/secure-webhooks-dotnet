@@ -59,10 +59,11 @@ internal sealed class LoopbackServer : IAsyncDisposable
                     break;
                 case "/big":
                     // Streams up to 64 MB; a well-behaved client stops reading long before that.
+                    // Kestrel turns writes after a client disconnect into no-ops, so stop counting once aborted.
                     var chunk = new byte[64 * 1024];
                     try
                     {
-                        for (int i = 0; i < 1024; i++)
+                        for (int i = 0; i < 1024 && !context.RequestAborted.IsCancellationRequested; i++)
                         {
                             await context.Response.Body.WriteAsync(chunk, context.RequestAborted);
                             Interlocked.Add(ref server.BigBodyBytesWritten, chunk.Length);

@@ -72,8 +72,9 @@ public sealed class WebhookSenderIntegrationTests : IAsyncLifetime
 
         Assert.True(result.Outcome == AttemptOutcome.Success, $"{result.Outcome} {result.StatusCode} {result.Error}");
         Assert.Equal(harness.Options.MaxResponseBodyBytes, result.ResponseBodyPreview!.Length);
-        await Task.Delay(200, _ct); // let the server observe the closed connection
+        await Task.Delay(500, _ct); // let the server observe the closed connection
+        // Socket buffers on both sides plus SocketsHttpHandler's bounded drain (1 MB) can absorb a few MB, never 64 MB.
         long written = Interlocked.Read(ref _server.BigBodyBytesWritten);
-        Assert.True(written < 64L * 1024 * 1024, $"the server streamed {written} bytes; the client should have stopped reading long before 64 MB");
+        Assert.True(written < 32L * 1024 * 1024, $"the server streamed {written} bytes; the client should have stopped reading long before 64 MB");
     }
 }
