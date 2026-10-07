@@ -37,7 +37,7 @@ jobs:
         run: dotnet build -c Release -warnaserror --no-restore
 
       - name: Test
-        run: dotnet test -c Release --no-build --collect:"XPlat Code Coverage" --results-directory ./coverage
+        run: dotnet test -c Release --no-build --logger GitHubActions --collect:"XPlat Code Coverage" --results-directory ./coverage
 
       - name: Pack
         run: dotnet pack -c Release --no-build -o ./artifacts
