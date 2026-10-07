@@ -70,9 +70,10 @@ public sealed class WebhookSenderIntegrationTests : IAsyncLifetime
 
         var result = await harness.Sender.SendAsync(harness.Endpoint(_server.Url("/big")), SenderHarness.Message(), _ct);
 
-        Assert.Equal(AttemptOutcome.Success, result.Outcome);
+        Assert.True(result.Outcome == AttemptOutcome.Success, $"{result.Outcome} {result.StatusCode} {result.Error}");
         Assert.Equal(harness.Options.MaxResponseBodyBytes, result.ResponseBodyPreview!.Length);
         await Task.Delay(200, _ct); // let the server observe the closed connection
-        Assert.True(Interlocked.Read(ref _server.BigBodyBytesWritten) < 64L * 1024 * 1024, "the server should not have been able to stream the whole 64 MB body");
+        long written = Interlocked.Read(ref _server.BigBodyBytesWritten);
+        Assert.True(written < 64L * 1024 * 1024, $"the server streamed {written} bytes; the client should have stopped reading long before 64 MB");
     }
 }
